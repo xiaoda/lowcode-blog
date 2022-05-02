@@ -1,4 +1,4 @@
-# Low Code Blog
+# LowCode Blog
 低代码技术博客
 
 ## 2022
