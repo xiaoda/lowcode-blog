@@ -12,7 +12,7 @@ OutSystems 带来了全新的开发思想和方式，对传统技术路线的前
 
 在同一个 Module 里操作 Database 最方便，但一个 Module 默认使用一个主题、对应一个 Layout、使用一个菜单列表，这就意味着前后台页面的展示不好区分。虽然我们可以手动创建两个主题、两个 Layout、两个菜单列表来解决这个问题，但这样有违 Module 的默认范式，不是好的解决方法。
 
-个人推荐的做法是：新建两个 Module 分别对应前台和后台，Database 位于其中一个 Module。Database 下的每一个 Entity 有一个属性 Public，代表是否可以跨 Module \/ Application 访问；另一个属性 Expose Read Only 代表跨 Module \/ Application 调用时是否可写。通过这两个属性的配置就可以解决 Database 的调用问题。
+个人推荐的做法是：新建两个 Module 分别对应前台和后台，Database 位于其中一个 Module。Database 下的每一个 Entity 有一个属性 Public，代表是否可以跨 Module \/ Application 访问；另一个属性 Expose Read Only 代表跨 Module \/ Application 调用时是否可写。在需要跨 Module 调用 Database 的 Module 里，点击顶部菜单的 Manage Dependencies... 按钮（插座图案），选择需要调用的 Public Entity，完成后即可进行调用。 
 
 ### Q2: 如何修改新建页面的默认 Layout 以及如何修改已存在页面的 Layout？
 UI Flows / Layout 下内置了5 个组件：
@@ -25,3 +25,10 @@ UI Flows / Layout 下内置了5 个组件：
 | LayoutTopMenu | 页面级 | 带导航栏（顶部） | 适用于列表页、详情页 |
 
 新增页面的默认 Layout 可以在当前使用主题的 Layout 属性找到并修改，仅影响新增页面，已存在页面不受影响。已存在页面由于已经过页面搭建，删掉重来代价太高，幸好在 ServiceStudio 中也有考虑到并提供办法：切换到已存在页面的 Widget Tree，选中 Layout 组件，其 Source Block 属性就是当前使用的 Layout，直接选择新的 Layout 即可。
+
+### Q3: Entity 内部数据关系的建立需要注意什么？
+在传统开发模式下，数据库表之间需要建立一对一、一对多、多对多的关联。OutSystems Entity 同样支持这几种关联关系，相关教程 [Modeling Data Relationships](https://www.outsystems.com/training/courses/128/modeling-data-relationships/) 做了很好的介绍。在具体操作时，外键字段的数据类型需要设置为目标 Entity 的 Identifier。
+
+还有一种情况，一个 Entity 内部的数据之间存在某种关联，比如上下级菜单、上下级员工等。在传统开发模式下也比较简单，用一个字段记录关联数据 ID 即可，但 OutSystems 对这种情况支持得不太好，需要开发者自己注意某些细节：
+1. 记录关联数据 ID 的字段类型不能用当前 Entity 的 Identifier，否则创建 Entity 时会报错提示必须选择其它 Entity Identifier。
+2. 每个 Entity Identifier 看起来虽然是自增整数，但其实都有特有的数据类型。OutSystems 有严格的数据类型机制，Integer 和 Entitty Identifier 是不能混用的，所以在所有必要的地方，都需要使用内置的类型转换方法 IntegerToIdentifier 或 IdentifierToInteger 进行转换。
